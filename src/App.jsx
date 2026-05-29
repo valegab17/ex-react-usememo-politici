@@ -1,11 +1,26 @@
-/* 📌 Milestone 2: Implementare la ricerca ottimizzata
+/* 📌 Milestone 3: Ottimizzare il rendering delle card con React.memo
 
-    Aggiungi un campo di ricerca (<input type="text">) sopra la lista dei politici.
-    Permetti all’utente di filtrare i risultati in base a nome o biografia (se il testo cercato è incluso). Suggerimento: Creare un array derivato filtrato, che viene aggiornato solo quando cambia la lista di politici o il valore della ricerca.
-    ❌ Non usare useEffect per aggiornare l’array filtrato.
+    Attualmente, ogni volta che l’utente digita nella barra di ricerca, tutte le card vengono ri-renderizzate, anche quelle che non sono cambiate.
+    Usa React.memo() per evitare il ri-render delle card quando le loro props non cambiano.
+    Aggiungi un console.log() dentro il componente Card per verificare che venga renderizzato solo quando necessario.
 
-Obiettivo: Migliorare le prestazioni evitando ricalcoli inutili quando il valore della ricerca non cambia. */
+Obiettivo: Se la lista filtrata cambia, solo le nuove card devono essere renderizzate, mentre le altre rimangono in memoria senza essere ridisegnate. */
 import { useState, useEffect, memo, useMemo } from "react";
+//mi creo una var in cui passare la prop politician
+const CardPolitico = memo(({ politician }) => {
+  console.log(`Render di: ${politician.name}`);
+  return (
+    <div>
+      {/*  mostro il nome del politico */}
+      <h3 className="nome-politico">{politician.name}</h3>
+      {/* mostro l'img del politico */}
+      <img src={politician.image} alt={politician.name} />
+      <p className="posizione">{politician.position}</p>
+      <p className="biografia">{politician.biography}</p>
+    </div>
+
+  )
+})
 
 function App() {
 
@@ -22,36 +37,29 @@ function App() {
 
   }, []);
 
-const filteredPoliticians = useMemo(() => {
-  return politicians.filter(p => 
-    p.name.toLowerCase().includes(research.toLowerCase()) || 
-    p.biography.toLowerCase().includes(research.toLowerCase())
-  );
-}, [politicians, research]);
+  const filteredPoliticians = useMemo(() => {
+    return politicians.filter(p =>
+      p.name.toLowerCase().includes(research.toLowerCase()) ||
+      p.biography.toLowerCase().includes(research.toLowerCase())
+    );
+  }, [politicians, research]);
   return (
 
     <>
       <div className="container">
         <h2>Lista dei politici</h2>
-        <input 
-        
-        type="text"
-        value={research}
-        onChange={(e)=> setResearch(e.target.value)}
-        placeholder="Cerca per nome e biografia"
+        <input
+
+          type="text"
+          value={research}
+          onChange={(e) => setResearch(e.target.value)}
+          placeholder="Cerca per nome e biografia"
 
         />
         <div className="lista-politici">
           {filteredPoliticians.map((p) => {
             return (
-              <div key={p.id} className="card">
-                {/* mostro il nome del politico */}
-                <h3 className="nome-politico">{p.name}</h3>
-                {/* mostro l'img del politico */}
-                <img src={p.image} alt={p.name} />
-                <p className="posizione">{p.position}</p>
-                <p className="biografia">{p.biography}</p>
-              </div>
+              <CardPolitico key={p.id} politician={p} />
             )
           })}
         </div>
